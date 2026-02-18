@@ -1,19 +1,16 @@
 from app.core.llm import get_llm
-from app.schemas.task_response import TaskResponse
+from app.tools.registry import TOOLS
+from app.agents.agent import Agent
 
-def run():
+def main():
     llm = get_llm()
+    agent = Agent(llm=llm, tools=TOOLS)
 
-    messages = [
-        {"role": "system", "content": "Return ONLY valid JSON with keys: task_type, confidence, answer"},
-        {"role": "user", "content": "What is 2 + 2?"}
-    ]
+    user_input = input("Ask something: ")
+    result = agent.run(user_input)
 
-    result = llm.structured_chat(messages, TaskResponse)
-
-    print("\nValidated Object:\n", result)
-    print("\nAs Dict:\n", result.model_dump())
-
+    print("\nFinal Answer:")
+    print(result.model_dump())
 
 if __name__ == "__main__":
-    run()
+    main()

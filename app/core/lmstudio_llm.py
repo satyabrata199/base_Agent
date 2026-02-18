@@ -7,6 +7,7 @@ from .logging import log_debug
 from app.core.json_utils import safe_parse_json
 from app.schemas.task_response import TaskResponse
 from pydantic import ValidationError
+from pydantic import TypeAdapter
 
 class LMStudioClient(BaseLLM):
 
@@ -34,7 +35,9 @@ class LMStudioClient(BaseLLM):
 
             try:
                 parsed = safe_parse_json(response)
-                validated = schema.model_validate(parsed)
+                adapter = TypeAdapter(schema)
+                validated = adapter.validate_python(parsed)
+                #validated = schema.model_validate(parsed)
                 return validated
 
             except (ValueError, ValidationError) as e:
@@ -47,4 +50,4 @@ class LMStudioClient(BaseLLM):
 
         raise Exception("Failed to produce valid structured output after retries.")
 
-    
+       
